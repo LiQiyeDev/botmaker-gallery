@@ -1,1 +1,7 @@
-[]
+[ {
+  "name" : "Click",
+  "owner" : "LiQiyeDev",
+  "repo" : "ClickTest",
+  "description" : "A library test",
+  "tags" : [ ]
+} ]
