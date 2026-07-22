@@ -4,4 +4,10 @@
   "repo" : "ClickTest",
   "description" : "A library test",
   "tags" : [ ]
+}, {
+  "name" : "PushTest",
+  "owner" : "LiQiyeDev",
+  "repo" : "PushTest",
+  "description" : "",
+  "tags" : [ ]
 } ]
