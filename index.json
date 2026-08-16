@@ -10,4 +10,11 @@
   "repo" : "PushTest",
   "description" : "",
   "tags" : [ ]
+}, {
+  "name" : "Update",
+  "owner" : "LiQiyeDev",
+  "repo" : "Update",
+  "description" : "",
+  "tags" : [ ],
+  "launchTargets" : [ "heroic" ]
 } ]
