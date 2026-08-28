@@ -1,0 +1,38 @@
+name: Index
+
+# Regenerates index.json from bots/*.json after a merge, and commits it if it changed.
+#
+# This job is the only thing that writes index.json, which is what lets validate.yml refuse a pull request
+# that edits it by hand. The file's PATH is a compatibility promise: every already-shipped Studio reads it
+# from raw.githubusercontent.com at exactly this location, so it must never move.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'bots/**'
+      - 'tools/build-index.sh'
+  workflow_dispatch:
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Regenerate
+        run: tools/build-index.sh
+
+      - name: Commit if it changed
+        run: |
+          if git diff --quiet -- index.json; then
+            echo "index.json is already up to date."
+            exit 0
+          fi
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.json
+          git commit -m "gallery: regenerate index.json"
+          git push

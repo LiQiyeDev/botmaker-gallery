@@ -1,0 +1,69 @@
+name: Validate
+
+# The gate. Deliberately small: a gallery entry is a pointer to somebody's repository, not a plugin loaded
+# into Studio's process, so there is nothing here to resolve and nothing to run. What it checks is the
+# layout, and the one thing an out-of-date Studio gets wrong.
+#
+# NO JAVA, no botmaker-cli: botmaker-plugin-registry's gate exists because a plugin's checks must be the ones
+# its author already ran locally. A gallery submission has no local checks to match.
+
+on:
+  pull_request:
+    paths:
+      - 'bots/**'
+      - 'index.json'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # A pull request chooses its own filenames, so the changed list is attacker-controlled text: it is
+      # written to a file and read with `grep -x`, never interpolated into a command.
+      - name: What this pull request changed
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git diff --name-only "$BASE_SHA" HEAD > /tmp/changed.txt
+          cat /tmp/changed.txt
+
+      # THE ONE REFUSAL THAT NEEDS A GOOD MESSAGE. A BotMaker Studio older than the release that moved
+      # publishing to per-entry files opens exactly this pull request — it read index.json, appended its
+      # entry and committed the whole array back. The refusal has to name the update, because from inside
+      # that Studio the submission looked like it worked.
+      - name: index.json is generated
+        run: |
+          if grep -qx 'index.json' /tmp/changed.txt; then
+            echo "::error file=index.json::index.json is generated from bots/*.json and committed by CI." \
+                 "If BotMaker Studio opened this pull request, update Studio: releases before the" \
+                 "per-entry gallery wrote the whole index and can no longer publish. Otherwise add or edit" \
+                 "bots/<owner>-<repo>.json instead."
+            exit 1
+          fi
+
+      - name: Entries are well formed
+        run: |
+          status=0
+          while IFS= read -r file; do
+              case "$file" in
+                  bots/*.json) ;;
+                  *) continue ;;
+              esac
+              # A deletion — delisting a bot — needs no checking at all.
+              [ -f "$file" ] || continue
+              slug="$(jq -r '"\(.owner)-\(.repo)"' "$file")"
+              expected="bots/$slug.json"
+              if [ "$file" != "$expected" ]; then
+                  echo "::error file=$file::the filename is the bot's owner-repo: rename this to $expected"
+                  status=1
+              fi
+              if [ "$(jq -r '.name // ""' "$file")" = "" ]; then
+                  echo "::error file=$file::an entry needs a name"
+                  status=1
+              fi
+          done < /tmp/changed.txt
+          exit $status
