@@ -44,6 +44,31 @@ No version: the release to install is fetched live from the author's own reposit
 needs an edit here. `launchTargets` is what the author says their bot runs on; an entry without it reads as
 "the author never said", never "works on nothing".
 
+## `"template"` is a reserved tag
+
+An entry whose `tags` contain `template` is a **starting template**, not a bot to install. Studio's
+**New Project** lists those and nothing else; **Browse Bots** lists everything else and nothing that carries
+it.
+
+A template is an ordinary published bot — same repository, same release, same index entry — and that is the
+whole point: a new starting point needs no Studio release, and the people who write bots are the people who
+write the templates. Studio composes exactly one starting point of its own (a blank project, so New Project
+works with no network); every richer one lives here.
+
+The one extra thing a template needs is a `botmaker-template.properties` at its repository root:
+
+```properties
+package=com.botmaker.gamebot
+```
+
+That prefix is replaced with the user's own when they start from it — `com.myfarmer` — and the directories
+move with it. **Nothing else is renamed**: the entry class keeps the name its author gave it, and so does
+everything else, so the copy is the project that demonstrably built for them.
+
+Studio ticks the tag for you: **Project ▸ Publish…**, *This is a starting template*. It refuses to publish
+one whose declared package has no sources in it, because that unpacks into somebody's New Project, renames
+nothing, and hands them a working project sitting in your package.
+
 ## Submitting
 
 Publish from Studio (**Project ▸ Publish…**, with *List in the public gallery* ticked) — it forks this
