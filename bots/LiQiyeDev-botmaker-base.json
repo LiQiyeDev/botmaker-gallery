@@ -1,0 +1,7 @@
+{
+  "name" : "base",
+  "owner" : "LiQiyeDev",
+  "repo" : "botmaker-base",
+  "description" : "A blank bot project to start from — a pom, one main() and nothing else.",
+  "tags" : [ "template" ]
+}
