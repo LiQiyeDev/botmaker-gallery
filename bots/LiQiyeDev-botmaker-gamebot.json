@@ -1,0 +1,7 @@
+{
+  "name" : "gamebot",
+  "owner" : "LiQiyeDev",
+  "repo" : "botmaker-gamebot",
+  "description" : "A game bot to start from — window capture, image matching and a click loop.",
+  "tags" : [ "game", "template", "vision" ]
+}
